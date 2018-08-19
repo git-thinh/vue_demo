@@ -5,6 +5,7 @@ var API_FLAG = {
 
 var API_CF = {
     APP_SETTING: '/api/data/app_setting',
-    PARTS_LIST: '/api/data/part_list',
+    PART_LIST: '/api/data/part_list',
+    PAGE_LIST: '/get_dirs?path=assets\\pages',
 };
 

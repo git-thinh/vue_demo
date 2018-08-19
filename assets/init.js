@@ -1,4 +1,5 @@
-﻿if (navigator.serviceWorker) {
+﻿
+if (navigator.serviceWorker) {
     if (navigator.serviceWorker.controller) {
         let worker = new Worker("./assets/api/render.js");
         worker.onmessage = (e => { Via.OnMessage(e.data); });
@@ -81,7 +82,7 @@ function f_message_broadcastChannelReceiver(msg) {
     var key = msg.KEY, _for = msg.FOR, data = msg.DATA;
     switch (key) {
         case API_FLAG.PARTS_STATE_READY:
-            f_runApp();
+            f_runApp(data);
             break;
         default:
             switch (_for) {
@@ -118,4 +119,27 @@ function f_fetchApi(pathApi, f_callback) {
             f_callback(rs);
         });
     }
+}
+
+var app, router;
+function f_runApp(coms) {
+
+    var routes = [
+      //{ path: '/', component: PARTS[2].component, props: { code: 'sign-in', } },
+      //{ path: '/index.html', component: PARTS[2].component, props: { code: 'sign-in', } },
+      //{ path: '/login', component: PARTS[1].component },
+      //{ path: '/about', component: PARTS[3].component },
+      //{ path: '/dashboard', component: PARTS[2].component, meta: { requiresAuth: true } },
+    ];
+
+    coms.forEach(function (com) { routes.push({ path: '/' + com, component: window['com_' + com.split('/').join('_')] }); });
+
+    router = new VueRouter({ routes });
+
+    app = new Vue({
+        router,
+        template: '<div id="app"><router-view class="view"></router-view></div>',
+        mounted: function () {
+        }
+    }).$mount('#app');
 }

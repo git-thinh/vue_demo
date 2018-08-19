@@ -7,7 +7,12 @@ self.addEventListener("message", e => {
     if (e.data === "start") {
         importScripts("../via/via.js");
         Via.postMessage = (data => self.postMessage(data));
-        f_render_Parts();
+
+        f_render_Pages(function (coms) {
+            f_render_Parts(function () {
+                f_send_broadCast_toMainUI({ KEY: API_FLAG.PARTS_STATE_READY, DATA: coms });
+            });
+        });
     }
     else {
         Via.OnMessage(e.data);
@@ -45,7 +50,53 @@ function f_send_broadCast_toMainUI(msg) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-function f_render_Parts() {
+function f_render_Pages(f_callback) {
+    fetch(API_CF.PAGE_LIST).then(res=>res.json()).then(cats => {
+        f_log(' CATS == ', cats);
+        const document = via.document;
+
+        var re_pages = cats.map(id => { return fetch(API_CF.PAGE_LIST + '\\' + id).then(res => res.json()); });
+        Promise.all(re_pages).then(pages => {
+            pages = pages.map(function (it, index) { return it.map(function (sid) { return cats[index] + '/' + sid; }); });
+            pages = _.reduceRight(pages, function (a, b) { return a.concat(b); }, []);
+
+            f_log(' PAGES == ', pages);
+            
+            var rhs = pages.map(id => { return fetch('/assets/pages/' + id + '/temp.html').then(res => res.text()); });
+            Promise.all(rhs).then(htmls=> {
+                htmls.forEach(function (s, index) {
+                    var id = pages[index].split('/').join('_');
+                    //s = s.split('___ScreenID').join(id);
+                    //f_log(id, s);
+                    var el = document.createElement('script');
+                    el.id = 'Screen_' + id + '_Template';
+                    el.type = 'text/x-template';
+                    el.innerHTML = s;
+                    document.body.appendChild(el);
+                });
+
+                var rjs = pages.map(id => { return fetch('/assets/pages/' + id + '/js.js').then(res => res.text()); });
+                Promise.all(rjs).then(jss=> {
+                    jss.forEach(function (s, index) {
+                        var id = pages[index].split('/').join('_');
+                        s = s.split('___ScreenID').join(id);
+                        //f_log(id, s);
+                        var el = document.createElement('script');
+                        el.id = 'Screen_' + id + '_JS';
+                        el.type = 'text/javascript';
+                        el.innerHTML = s;
+                        document.body.appendChild(el);
+                    });
+
+                    //var coms = pages.map(id => { return 'com_' + id.split('/').join('_'); });
+                    if (f_callback != null) f_callback(pages);
+                });
+            });
+        });
+    });
+}
+
+function f_render_Parts(f_callback) {
 
     fetch(API_CF.APP_SETTING).then(r=>r.json()).then(jo => {
         var aParts = _.map(jo, function (value, key) { return value; });
@@ -55,7 +106,7 @@ function f_render_Parts() {
 
         var rhs = aParts.map(id => { return fetch('/assets/parts/' + id + '/temp.html').then(res => res.text()); });
 
-        const d = via.document;
+        const document = via.document;
 
         Promise.all(rhs).then(htmls => {
             //f_log('TEMP', htmls);
@@ -68,28 +119,27 @@ function f_render_Parts() {
                     .split('<head>').join('<header style="display:none">').split('</head>').join('</header>')
                     .split('<body').join('<aside class="ui-component-body ' + id + '"').split('</body>').join('</aside>');
 
-                var el = d.createElement('script');
+                var el = document.createElement('script');
                 el.id = id + '-template';
                 el.type = 'text/x-template';
                 el.innerHTML = s;
-
-                d.body.appendChild(el);
+                document.body.appendChild(el);
             });
-            
+
             var rjs = aParts.map(id => { return fetch('/assets/parts/' + id + '/js.js').then(res => res.text()); });
-            Promise.all(rjs).then(jss => { 
+            Promise.all(rjs).then(jss => {
                 //f_log('JS', jss);
                 jss.forEach(function (js, index2) {
                     var id = aParts[index2];
                     //f_log(id, js);
-                    var el = d.createElement('script');
+                    var el = document.createElement('script');
                     el.id = id + '-script';
                     el.type = 'text/javascript';
                     el.innerHTML = js;
-                    d.body.appendChild(el);
+                    document.body.appendChild(el);
                 });
-                
-                f_send_broadCast_toMainUI({ KEY: API_FLAG.PARTS_STATE_READY });
+
+                if (f_callback != null) f_callback();
 
             });
         });
