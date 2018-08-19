@@ -3,24 +3,26 @@ var vue____ScreenID;
 
 var com____ScreenID = {
     template: '<div id="' + _____ScreenID + '"></div>',
+    props: ['screen_content'],
     mounted: function () {
-        this.instancemake();
+        this.instancemake(this.screen_content);
     },
     destroyed: function () {
         if (!(vue____ScreenID === null)) { vue____ScreenID.$destroy(); vue____ScreenID = null; } 
     },
     methods: {
-        instancemake: function () {
-            vue____ScreenID = f_instance____ScreenID();
+        instancemake: function (screen_content) {
+            vue____ScreenID = f_instance____ScreenID(screen_content);
             vue____ScreenID.f_setup();
         }
     }
 }
 
-function f_instance____ScreenID() {
+function f_instance____ScreenID(screen_content) {
+    screen_content += '<h2>' + new Date().toString() + '</h2>';
     var vue = new Vue({
         el: '#' + _____ScreenID,
-        template: '#' + _____ScreenID + '_Template',
+        template: screen_content,
         data: {
             screenID: '___ScreenID',
         },
@@ -51,6 +53,7 @@ function f_instance____ScreenID() {
             // #endregion
              
             f_setup: function (init) {
+                console.log(this.screenID, '#' + _____ScreenID + '_Template');
             },
             f_getScreenID: function () {
                 return _____ScreenID;

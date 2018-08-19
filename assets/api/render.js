@@ -60,36 +60,38 @@ function f_render_Pages(f_callback) {
             pages = pages.map(function (it, index) { return it.map(function (sid) { return cats[index] + '/' + sid; }); });
             pages = _.reduceRight(pages, function (a, b) { return a.concat(b); }, []);
 
-            f_log(' PAGES == ', pages);
+            var screens = pages.map(function (it, index) { return { path: '/' + it, componentName: 'com_' + it.split('/').join('_'), template: '' }; });
+            f_log(' PAGES == ', screens);
             
             var rhs = pages.map(id => { return fetch('/assets/pages/' + id + '/temp.html').then(res => res.text()); });
             Promise.all(rhs).then(htmls=> {
                 htmls.forEach(function (s, index) {
-                    var id = pages[index].split('/').join('_');
-                    //s = s.split('___ScreenID').join(id);
-                    //f_log(id, s);
-                    var el = document.createElement('script');
-                    el.id = 'Screen_' + id + '_Template';
-                    el.type = 'text/x-template';
-                    el.innerHTML = s;
-                    document.body.appendChild(el);
+                    ////var id = pages[index].split('/').join('_');
+                    //////s = s.split('___ScreenID').join(id);
+                    //////f_log(id, s);
+                    ////var el = document.createElement('script');
+                    ////el.id = 'Screen_' + id + '_Template';
+                    ////el.type = 'text/x-template';
+                    ////el.innerHTML = s;
+                    ////document.body.appendChild(el);
+                    screens[index].template = s;
                 });
 
                 var rjs = pages.map(id => { return fetch('/assets/pages/' + id + '/js.js').then(res => res.text()); });
                 Promise.all(rjs).then(jss=> {
                     jss.forEach(function (s, index) {
-                        var id = pages[index].split('/').join('_');
-                        s = s.split('___ScreenID').join(id);
-                        //f_log(id, s);
-                        var el = document.createElement('script');
-                        el.id = 'Screen_' + id + '_JS';
-                        el.type = 'text/javascript';
-                        el.innerHTML = s;
-                        document.body.appendChild(el);
+                        //var id = pages[index].split('/').join('_');
+                        //s = s.split('___ScreenID').join(id);
+                        ////f_log(id, s);
+                        //var el = document.createElement('script');
+                        //el.id = 'Screen_' + id + '_JS';
+                        //el.type = 'text/javascript';
+                        //el.innerHTML = s;
+                        //document.body.appendChild(el);
                     });
 
                     //var coms = pages.map(id => { return 'com_' + id.split('/').join('_'); });
-                    if (f_callback != null) f_callback(pages);
+                    if (f_callback != null) f_callback(screens);
                 });
             });
         });

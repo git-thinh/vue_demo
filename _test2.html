@@ -1,0 +1,87 @@
+﻿
+<!DOCTYPE html>
+<html lang='en' class=''>
+<head>
+    <meta charset='UTF-8'>
+</head>
+<body>
+    <div id="app">
+        <template v-for="(child, index) in children">
+            <component is="child" key="child.name"></component>
+        </template>
+
+        <button @click="add()">Add Another</button>
+    </div>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js'></script>
+    <script>
+        var Widget1 = {
+            template: "\n    <p @click=\"toggleMsg()\">Widget1 {{ computed1 }}!</p>\n  ",
+
+
+            computed: {
+                computed1: function computed1() {
+                    //return store.count + "1"; How
+                }
+            },
+
+            data: function data() {
+                return {
+                    msg: "home"
+                };
+
+            }
+        };
+
+
+        var Widget2 = {
+            template: "\n    <p @click=\"toggleMsg()\">Widget2 {{ computed1 }}!</p>\n  ",
+
+
+            computed: {
+                computed1: function computed1() {
+                    return this.msg + "2";
+                }
+            },
+
+            data: function data() {
+                return {
+                    msg: "home"
+                };
+
+            }
+        };
+
+
+       new Vue({
+            el: "#app",
+            data: {
+                counter: 0,
+                children: [Widget1]
+            },
+            methods: {
+                add: function add() {
+                    this.counter++;
+                    if (this.counter % 2 === 0)
+                        this.children.push(Widget1);
+                    else
+                        this.children.push(Widget2);
+                }
+            }
+        });
+
+
+
+        //var store = new Vuex.Store({
+        //    state: {
+        //        count: 0
+        //    },
+
+        //    mutations: {
+        //        increment: function increment(state) {
+        //            state.count++;
+        //        }
+        //    }
+        //});
+    </script>
+</body>
+</html>

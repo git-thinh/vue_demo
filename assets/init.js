@@ -122,28 +122,84 @@ function f_fetchApi(pathApi, f_callback) {
 }
 
 var app, router;
-function f_runApp(coms) {
+function f_runApp(screens) {
 
-    var routes = [
-      //{ path: '/', component: PARTS[2].component, props: { code: 'sign-in', } },
-      //{ path: '/index.html', component: PARTS[2].component, props: { code: 'sign-in', } },
-      //{ path: '/login', component: PARTS[1].component },
-      //{ path: '/about', component: PARTS[3].component },
-      //{ path: '/dashboard', component: PARTS[2].component, meta: { requiresAuth: true } },
-    ];
-    var link = '';
-    routes.push({ path: '/', component: com_dashboard_1001 });
-    coms.forEach(function (com) {
-        routes.push({ path: '/' + com, component: window['com_' + com.split('/').join('_')] });
-        link += '<router-link to="/' + com + '">' + com + '</router-link> | ';
+    //var routes = [
+    //  //{ path: '/', component: PARTS[2].component, props: { code: 'sign-in', } },
+    //  //{ path: '/index.html', component: PARTS[2].component, props: { code: 'sign-in', } },
+    //  //{ path: '/login', component: PARTS[1].component },
+    //  //{ path: '/about', component: PARTS[3].component },
+    //  //{ path: '/dashboard', component: PARTS[2].component, meta: { requiresAuth: true } },
+    //];
+    //var link = '';
+    //routes.push({ path: '/', component: com_dashboard_1001, props: { screen_content: screens[0].template } });
+    //screens.forEach(function (src) {
+    //    var vue = window[src.componentName];
+    //    console.log(src.path, vue);
+    //    routes.push({ path: src.path, component: vue, props: { screen_content: src.template } });
+    //    link += '<router-link to="' + src.path + '">' + src.path + '</router-link> | ';
+    //});
+
+    ////router = new VueRouter({ routes });
+    ////router.beforeEach((to, from, next) => {
+    ////    //if (to.matched.some(record => record.meta.requiresAuth) && !Auth.loggedIn) {
+    ////    //    next({ path: '/login', query: { redirect: to.fullPath } });
+    ////    //} else {
+    ////        next();
+    ////    //}
+    ////});
+
+    //app = new Vue({
+    //    router,
+    //    template: '<div id="app"><p>' + link + '</p><router-view class="view"></router-view></div>',
+    //    mounted: function () {
+    //    }
+    //}).$mount('#app');
+
+    var _patrs = {
+        subcomponent: {
+            props: ['propA', 'propB'],
+            template: '<DIV><h1>propA: {{ propA }} propB: {{ propB }}</h1><h3>PATH: /</h3></DIV>'
+        }
+    };
+
+    var _tabs = ['subcomponent'];
+    screens.forEach(function (src, index) {
+        _tabs.push(src.componentName);
+
+        _patrs[src.componentName] = {
+            props: ['propA', 'propB'],
+            template: '<DIV><h1>propA: {{ propA }} propB: {{ propB }}</h1><h3>PATH[' + index + ']: ' + src.path + '</h3>' + src.template + '</DIV>'
+        };
+
+        //Vue.component(src.componentName, {
+        //    template: src.template,
+        //    props: ['propA', 'propB'],
+        //    mounted: function () {
+        //        this.creenID = src.componentName;
+        //        console.log('1>>>>>screen_content ' + src.componentName, src.path);
+        //    },
+        //});
     });
 
-    router = new VueRouter({ routes });
+    console.log(screens);
+    console.log(_patrs);
 
     app = new Vue({
-        router,
-        template: '<div id="app">' + link + '<router-view class="view"></router-view></div>',
-        mounted: function () {
-        }
-    }).$mount('#app');
+        el: '#dynamic-component-demo',
+        data: {
+            subdata: {
+                propA: 'valA',
+                propB: 'valB'
+            },
+            currentTab: 'subcomponent',
+            tabs: _tabs
+        },
+        computed: {
+            currentTabComponent: function () {
+                return this.currentTab;
+            }
+        },
+        components: _patrs,
+    });
 }
