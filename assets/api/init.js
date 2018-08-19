@@ -16,29 +16,33 @@
 var BROADCAST_API;
 if ('BroadcastChannel' in window) {
     BROADCAST_API = new BroadcastChannel('BROADCAST_API');
-    BROADCAST_API.addEventListener("message", (e) => f_message_ReceiverFromAPI(e.data), false);
+    BROADCAST_API.addEventListener("message", (e) => f_message_broadcastChannelReceiver(e.data), false);
 }
 
-var _divBroadCast = document.createElement('div');
-_divBroadCast.id = 'broadcast-xxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-});
-document.body.appendChild(_divBroadCast);
-var BROADCAST_VUE = new Vue({
-    el: '#' + _divBroadCast.id,
-    methods: {
-        f_sendMessage_toMainUI: function (data) {
-            var mainUI = location.hash.split('?')[0];
-            this.$emit(mainUI, data);
-        },
-        f_sendMessage_toAll: function (data) {
-            this.$emit('*', data);
-        },
-        f_sendMessage_toSender: function (channelSender, data) {
-            this.$emit(channelSender, data);
-        },
-    }
+var BROADCAST_VUE;
+document.addEventListener("DOMContentLoaded", function () {
+    var _divBroadCast = document.createElement('div');
+    _divBroadCast.id = 'broadcast-xxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+    document.body.appendChild(_divBroadCast);
+
+    BROADCAST_VUE = new Vue({
+        el: '#' + _divBroadCast.id,
+        methods: {
+            f_sendMessage_toMainUI: function (data) {
+                var mainUI = location.hash.split('?')[0];
+                this.$emit(mainUI, data);
+            },
+            f_sendMessage_toAll: function (data) {
+                this.$emit('*', data);
+            },
+            f_sendMessage_toSender: function (channelSender, data) {
+                this.$emit(channelSender, data);
+            },
+        }
+    });
 });
 
 /***************************************/
@@ -53,15 +57,12 @@ function f_broadcast_comVUE_joinAll(f_callback) {
 }
 
 function f_broadcast_comVUE_joinSender(f_callback, _self) {
-    var channelSender;
-    if (_self != null && _self._channelBroadcast != null)
-        channelSender = _self._channelBroadcast.getName();
-    if (channelSender != null)
-        BROADCAST_VUE.$on(channelSender, f_callback);
+    if (_self.broadcastChannel != null)
+        BROADCAST_VUE.$on(_self.broadcastChannel, f_callback);
 }
 
 function f_broadcast_comVUE_msgReceiver(_self, msg, f_callback) {
-    console.log('VUE_COMPONENTS.' + _self._channelBroadcast.getName() + ' = ', msg);
+    console.log('VUE_COMPONENTS.' + _self.broadcastChannel + ' = ', msg);
     if (msg != null) {
         if (msg.CALL != null) {
             if (_self[msg.CALL] != null) _self[msg.CALL](msg);
@@ -72,7 +73,7 @@ function f_broadcast_comVUE_msgReceiver(_self, msg, f_callback) {
     f_callback(msg);
 }
 
-function f_msgReceiverFromAPI(msg) {
+function f_message_broadcastChannelReceiver(msg) {
     if (msg.TO != '*' && msg.TO != 'UI') return;
     console.log('<= UI: RECEIVER <- WORKER: ', msg);
 

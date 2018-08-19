@@ -36,8 +36,7 @@ function f_instanceSceenTest() {
 
             f_broadcast_Register: function () {
                 var _self = this;
-
-                _self._channelBroadcast = { id: this._uid, name: 'test', getName: function () { return this.name; } };
+                _self.broadcastChannel = 'broadcast-' + this._uid;
 
                 f_hui_broadcast_ComponentsVUE_Join_All(function (msg) { f_vue_broadcast_message_Receiver(_self, msg, _self.f_com_process_Message_Receiver); });
                 f_hui_broadcast_ComponentsVUE_Join_Sender(function (msg) { f_vue_broadcast_message_Receiver(_self, msg, _self.f_com_process_Message_Receiver); }, _self);

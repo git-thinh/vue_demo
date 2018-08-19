@@ -1,65 +1,25 @@
 importScripts('config.js');
-importScripts('lib/underscore.min.js');
+importScripts('../lib/underscore.min.js');
 
-//importScripts('dom-to-image.js');
-//importScripts('rasterizeHTML.js');
-//importScripts('rasterizeHTML.allinone.js');
-
-importScripts('../../js/interface/appList/widget_list.js');
-importScripts('../../js/interface/editdata/editdate.js');
-
-var WIDGET_APP_INFO_LIST = widgetAppInfolist;
-var WIDGET_EDIT_DATA = editData;
-
-var BROADCAST_WORKERS;
-if ('BroadcastChannel' in self) {
-    BROADCAST_WORKERS = new BroadcastChannel(HUI_BROADCAST_CF.API_BROADCAST_WORKERS);
-    BROADCAST_WORKERS.addEventListener("message", (e) => f_process_message_Receiver(e.data), false);
-}
 self.addEventListener("message", e => {
     if (e.data === "start") {
-        importScripts("lib/via.js");
+        importScripts("../via/via.js");
         Via.postMessage = (data => self.postMessage(data));
-        //Start(); 
-        f_render_widgetElements();
+        Start(); 
+        //f_render_widgetElements();
     }
     else {
         Via.OnMessage(e.data);
     }
 });
-/////////////////////////////////////////////////////////////////////////////
 
-var WIDGETS_RENDER = {};
-
-function f_render_widgetElements() {
-
-    WIDGET_APP_INFO_LIST.forEach(function (wi, index) {
-        const d = via.document;
-
-        fetch('/js/data/widget/' + wi.url).then(res => res.text()).then(s => {
-            s = s.split('<!DOCTYPE html>').join('')
-                .split('<html>').join('<div id="' + wi.id + '" class=fixwidget>').split('</html>').join('</div>')
-                .split('<head>').join('<header class=wi_lib>').split('</head>').join('</header>')
-                .split('<body ').join('<aside class="wi_body ' + wi.id + '" ').split('</body>').join('</aside>');
-
-            //console.log(s);
-
-            var el = d.createElement('div');
-            el.id = wi.id;
-            el.className = "fix_widget" + index;
-            el.innerHTML = s;
-
-            //d.body.appendChild(el);
-
-            WIDGETS_RENDER[wi.id] = el; 
-        });
-    });
-
-    console.log('<# RENDER: render widgets complete ...');
+var BROADCAST_API;
+if ('BroadcastChannel' in self) {
+    BROADCAST_API = new BroadcastChannel('BROADCAST_API');
+    BROADCAST_API.addEventListener("message", (e) => f_message_broadcastChannelReceiver(e.data), false);
 }
 
-
-function f_process_message_Receiver(msg) {
+function f_message_broadcastChannelReceiver(msg) {
     var type = typeof msg;
     if (type == 'string') {
     } else {
@@ -68,54 +28,38 @@ function f_process_message_Receiver(msg) {
 
         var key = msg.KEY;
         switch (key) {
-            case HUI_RENDER_CF.API_RENDER_GET_WIDGET_BY_ID:
-                msg.DATA = { Ok: true, Data: WIDGETS_RENDER[msg.HEADER] };
-                f_send_broadCast_toHomeUI(msg);
-                break;
         }
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////
 
+function f_render_widgetElements() {
 
-function f_send_broadCast_toHomeUI(msg) {
-    if (BROADCAST_WORKERS != null) {
-        msg.FOR = HUI_BROADCAST_CF.API_BROADCAST_COMPONENTS_VUE_REG_HOMEUI;
-        msg.TO = 'UI';
-        const d = via.document;
-        const w = via.window;
+    //WIDGET_APP_INFO_LIST.forEach(function (wi, index) {
+    //    const d = via.document;
 
-        console.log('d = ', d);
-        console.log('w = ', w);
-        console.log('m = ', msg);
-        d['f_hui_process_message_ReceiverFromWorker'](msg);
+    //    fetch('/js/data/widget/' + wi.url).then(res => res.text()).then(s => {
+    //        s = s.split('<!DOCTYPE html>').join('')
+    //            .split('<html>').join('<div id="' + wi.id + '" class=fixwidget>').split('</html>').join('</div>')
+    //            .split('<head>').join('<header class=wi_lib>').split('</head>').join('</header>')
+    //            .split('<body ').join('<aside class="wi_body ' + wi.id + '" ').split('</body>').join('</aside>');
 
-        //BROADCAST_WORKERS.postMessage(msg);
-    }
+    //        //console.log(s);
+
+    //        var el = d.createElement('div');
+    //        el.id = wi.id;
+    //        el.className = "fix_widget" + index;
+    //        el.innerHTML = s;
+
+    //        //d.body.appendChild(el);
+
+    //        WIDGETS_RENDER[wi.id] = el; 
+    //    });
+    //});
+
+    //console.log('<# RENDER: render widgets complete ...');
 }
-
-function f_send_broadCast_toService(msg) {
-    if (BROADCAST_WORKERS != null) {
-        msg.TO = 'SERVICE';
-        BROADCAST_WORKERS.postMessage(msg);
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 async function Start() {
     const document = via.document;
@@ -171,12 +115,3 @@ async function OnClick(e) {
     //source.connect(via.audioContext.destination);
     //source.start(0);
 }
-
-
-function f_hui_renderCacheViews() {
-
-
-
-    f_send_broadCast({ KEY: HUI_API_CONFIG.API_WORKER_SEND_HOMEUI_WIGETS_PAGE_FIRST, DATA: { Ok: true, } });
-}
-
