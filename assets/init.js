@@ -158,7 +158,7 @@ function f_runApp(screens) {
 
     var _patrs = {
         subcomponent: {
-            props: ['propA', 'propB'],
+            props: ['propA', 'propB', 'value'],
             template: '<DIV><h1>propA: {{ propA }} propB: {{ propB }}</h1><h3>PATH: /</h3></DIV>'
         }
     };
@@ -168,7 +168,7 @@ function f_runApp(screens) {
         _tabs.push(src.componentName);
 
         _patrs[src.componentName] = {
-            props: ['propA', 'propB'],
+            props: ['propA', 'propB', 'value'],
             template: '<DIV><h1>propA: {{ propA }} propB: {{ propB }}</h1><h3>PATH[' + index + ']: ' + src.path + '</h3>' + src.template + '</DIV>'
         };
 

@@ -1,3 +1,7 @@
 ﻿<h1>dashboard: {{ this.screenID }}</h1>
 <hr />
 <p>propA: {{ propA }} propB: {{ propB }}</p>
+<hr />
+<input v-bind="$attrs"
+       v-bind:value="value"
+       v-on:input="$emit('input', $event.target.value)">
