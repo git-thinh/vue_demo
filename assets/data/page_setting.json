@@ -1,5 +1,5 @@
 ﻿{
-  "login": 1001,
-  "dashboard": 1001,
-  "about": 1001
+  "login": [ 1001 ],
+  "dashboard": [ 1001 ],
+  "about": [ 1001 ]
 }
