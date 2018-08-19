@@ -131,14 +131,18 @@ function f_runApp(coms) {
       //{ path: '/about', component: PARTS[3].component },
       //{ path: '/dashboard', component: PARTS[2].component, meta: { requiresAuth: true } },
     ];
-
-    coms.forEach(function (com) { routes.push({ path: '/' + com, component: window['com_' + com.split('/').join('_')] }); });
+    var link = '';
+    routes.push({ path: '/', component: com_dashboard_1001 });
+    coms.forEach(function (com) {
+        routes.push({ path: '/' + com, component: window['com_' + com.split('/').join('_')] });
+        link += '<router-link to="/' + com + '">' + com + '</router-link> | ';
+    });
 
     router = new VueRouter({ routes });
 
     app = new Vue({
         router,
-        template: '<div id="app"><router-view class="view"></router-view></div>',
+        template: '<div id="app">' + link + '<router-view class="view"></router-view></div>',
         mounted: function () {
         }
     }).$mount('#app');
