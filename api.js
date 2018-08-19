@@ -1,5 +1,7 @@
-﻿importScripts('assets/api/config.js');
+﻿importScripts('assets/config.js');
 importScripts('assets/lib/underscore.min.js');
+
+var _LOG = '<= API: ';
 
 self.addEventListener('fetch', function (event) {
     var url = event.request.url;
@@ -9,10 +11,15 @@ self.addEventListener('fetch', function (event) {
     var noCache = url.indexOf('cache=no') == -1;
 
     if (path.indexOf('/api/') != -1) {
-        f_api_router(event, url, path, noCache);
+        if (path.indexOf('/api/data/') != -1) {
+            f_api_data(event, url, path, noCache);
+        }
+        else {
+            f_api_router(event, url, path, noCache);
+        }
     }
     else {
-        event.respondWith(fetch(event.request));        
+        event.respondWith(fetch(event.request));
     }
 });
 
@@ -81,6 +88,21 @@ function f_api_test(event, url, path, noCache) {
             'Content-Type': 'application/json; charset=utf-8'
         }
     })));
+}
+
+function f_api_data(event, url, path, noCache) {
+    var _url = url.split('?')[0].split('/api/').join('/assets/');
+    _url = _url + ".json" + ((/\?/).test(url) ? url.split('?')[1] : '');
+
+    //console.log(_LOG + ' DATA -> ' + _url);
+    event.respondWith(fetch(_url).then(r => r.json()).then(jo => {
+        //console.log(_LOG + ' DATA -> ' + _url, jo);
+        return new Response(JSON.stringify(jo), {
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8'
+            }
+        });
+    }));
 }
 
 

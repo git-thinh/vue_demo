@@ -1,0 +1,7 @@
+﻿{
+  "loading": "loading-001",
+  "login": "user-sign-in-001",
+  "change-pass": "user-change-pass-001",
+  "lock-screen": "user-lock-screen-001",
+  "tables": [ "table-001","table-002" ]
+}

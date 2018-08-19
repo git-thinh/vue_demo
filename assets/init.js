@@ -3,7 +3,7 @@
         let worker = new Worker("./assets/api/render.js");
         worker.onmessage = (e => { Via.OnMessage(e.data); });
         Via.postMessage = (data => worker.postMessage(data));
-        //worker.postMessage("start");
+        worker.postMessage("start");
     } else {
         navigator.serviceWorker.register('api.js', { scope: './' }).then(function (reg) {
             location.reload();
@@ -78,16 +78,23 @@ function f_message_broadcastChannelReceiver(msg) {
     console.log('<= UI: RECEIVER <- WORKER: ', msg);
 
     var mainUI = location.hash.split('?')[0];
-    var _for = msg.FOR, data = msg.DATA;
-    switch (_for) {
-        case '*':
-            BROADCAST_VUE.f_sendMessage_toAll(msg);
-            break;
-        case mainUI:
-            BROADCAST_VUE.f_sendMessage_toMainUI(msg);
+    var key = msg.KEY, _for = msg.FOR, data = msg.DATA;
+    switch (key) {
+        case API_FLAG.PARTS_STATE_READY:
+            f_runApp();
             break;
         default:
-            BROADCAST_VUE.f_sendMessage_toSender(_for, msg);
+            switch (_for) {
+                case '*':
+                    BROADCAST_VUE.f_sendMessage_toAll(msg);
+                    break;
+                case mainUI:
+                    BROADCAST_VUE.f_sendMessage_toMainUI(msg);
+                    break;
+                default:
+                    BROADCAST_VUE.f_sendMessage_toSender(_for, msg);
+                    break;
+            }
             break;
     }
 }
