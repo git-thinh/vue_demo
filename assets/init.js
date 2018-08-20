@@ -163,6 +163,8 @@ function f_runApp(screens) {
         }
     };
 
+    console.log('SCREEN === ', screens);
+
     var _tabs = ['subcomponent'];
     screens.forEach(function (src, index) {
         _tabs.push(src.componentName);
@@ -192,8 +194,8 @@ function f_runApp(screens) {
                 propA: 'valA',
                 propB: 'valB'
             },
-            currentTab: 'subcomponent',
-            tabs: _tabs
+            currentTab: 'com_dashboard_1001',
+            screens: screens
         },
         computed: {
             currentTabComponent: function () {
@@ -201,5 +203,37 @@ function f_runApp(screens) {
             }
         },
         components: _patrs,
+        methods: {
+            f_click: function (comName, path) {
+                console.log(comName, path);
+                location.hash = path;
+                //this.currentTab = comName;
+            }
+        }
     });
+
+
+    //let this snippet run before your hashchange event binding code
+    if (!window.HashChangeEvent) (function () {
+        var lastURL = document.URL;
+        window.addEventListener("hashchange", function (event) {
+            Object.defineProperty(event, "oldURL", { enumerable: true, configurable: true, value: lastURL });
+            Object.defineProperty(event, "newURL", { enumerable: true, configurable: true, value: document.URL });
+            lastURL = document.URL;
+        });
+    }());
+
+    // Alert some text if there has been changes to the anchor part
+    function HashHandler(e) {
+        //console.log("The Hash has changed!", e);
+        var hash = location.hash;
+        console.log('HASH === ', hash);
+        if (hash.length > 0) {
+            var comName = 'com_' + hash.substr(2).split('/').join('_');
+            app.$data.currentTab = comName;
+        }
+    }
+
+    window.addEventListener("hashchange", HashHandler, false);
+
 }

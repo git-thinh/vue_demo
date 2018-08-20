@@ -11,14 +11,21 @@
 </head>
 <body>
     <div id="dynamic-component-demo">
-        <button v-for="tab in tabs"
-                v-bind:key="tab"
-                v-bind:class="['tab-button', { active: currentTab === tab }]"
-                v-on:click="currentTab = tab">
-            {{ tab }}
+        <button v-for="tab in screens"
+                v-bind:key="tab.componentName"
+                v-bind:class="['tab-button', { active: currentTab === tab.componentName }]"
+                v-on:click="currentTab = tab.componentName">
+            {{ tab.componentName }}
         </button>
-
+        <hr />
         <component v-bind:is="currentTabComponent" :prop-a="subdata.propA" :prop-b="subdata.propB" class="tab"></component>
+        <hr />
+        <button v-for="tab in screens" 
+                v-bind:key="tab.componentName"
+                v-bind:class="['tab-button', { active: currentTab === tab.componentName }]"
+                v-on:click="f_click(tab.componentName, tab.path)">
+            {{ tab.componentName }}
+        </button>
     </div>
 
     <script src="assets/lib/underscore.min.js"></script>
